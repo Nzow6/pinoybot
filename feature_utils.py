@@ -1,14 +1,15 @@
 # feature_utils.py
 # -----------------------------------------------------------
-# Ultimate version of the PinoyBot feature extractor
-# Adds expanded Filipino & English morphology, 
-# capitalization logic, short-word disambiguation, 
-# and robust context features.
+# Ultimate version of the PinoyBot feature extractor (optimized for Random Forest)
+# Adds expanded English/FIL morphology, capitalization logic,
+# stopwords, context awareness, and orthographic structure.
 # -----------------------------------------------------------
 
 import pandas as pd
 import string
 import re
+
+# TODO: Fix capitalization checking for NE/OTHER detection, recall is too high so non eng words are classigfied as ENG, ALL CAPS OR JEJEMON WORDS are hard to classify
 
 VOWELS = set("aeiouAEIOU")
 
@@ -24,11 +25,16 @@ COMMON_FIL_SHORTS = {"si", "sa", "na", "pa", "po", "ko", "mo", "ka", "ba", "ha",
 COMMON_ENG_WORDS = {"happy", "sad", "love", "study", "project", "graduation", "after", "before", "and", "today", "soon"}
 COMMON_FIL_WORDS = {"grabe", "sige", "kasi", "naman", "ba", "po", "tapos", "ayan", "ako", "kami", "kayo", "pa", "na"}
 
+ENGLISH_STOPWORDS = {
+    "the", "and", "to", "in", "for", "of", "on", "with", "from", "that", "is", "was", "it", "as", "this", "by", "at", "or", "be", "an", "are", "if"
+}
+
 def extract_features_for_word(word: str, prev_word=None, prev_pred=None):
     """Extract rich linguistic, orthographic, and contextual features for one word."""
 
     if not isinstance(word, str):
         word = "" if pd.isna(word) else str(word)
+
     lower = word.lower().strip()
     num_chars = len(lower)
     num_vowels = sum(ch in VOWELS for ch in lower)
@@ -69,12 +75,16 @@ def extract_features_for_word(word: str, prev_word=None, prev_pred=None):
         feats[f"ends_{suf}"] = int(lower.endswith(suf))
     for cluster in ENGLISH_CLUSTERS:
         feats[f"has_{cluster}"] = int(cluster in lower)
+    feats["has_double_consonant"] = int(bool(re.search(r"(bb|cc|dd|ff|kk|ll|mm|nn|pp|rr|ss|tt)", lower)))
+    feats["has_vowel_consonant_vowel"] = int(bool(re.search(r"[aeiou][bcdfghjklmnpqrstvwxyz][aeiou]", lower)))
+    feats["contains_q_or_x"] = int("q" in lower or "x" in lower)
+    feats["is_english_stopword"] = int(lower in ENGLISH_STOPWORDS)
 
     # --- SHORT-WORD DISAMBIGUATION ---
     feats["is_common_eng_short"] = int(lower in COMMON_EN_SHORTS)
     feats["is_common_fil_short"] = int(lower in COMMON_FIL_SHORTS)
 
-    # --- SEMANTIC HINTS (mini dictionaries) ---
+    # --- SEMANTIC HINTS ---
     feats["is_known_eng"] = int(lower in COMMON_ENG_WORDS)
     feats["is_known_fil"] = int(lower in COMMON_FIL_WORDS)
 
@@ -93,10 +103,9 @@ def extract_features_for_word(word: str, prev_word=None, prev_pred=None):
     for i in range(len(lower) - 1):
         feats[f"bi_{lower[i:i+2]}"] = 1
     for i in range(len(lower) - 2):
-        feats[f"tri_{lower[i:i+3]}"] = 1
+        feats[f"tri_{lower[i:i+3]}"] = 1 
 
     # --- CONTEXT FEATURES ---
-    
     if prev_word:
         feats["prev_ends_vowel"] = int(prev_word[-1].lower() in "aeiou")
         feats["prev_is_capitalized"] = int(prev_word[0].isupper()) if len(prev_word) > 0 else 0
@@ -106,7 +115,9 @@ def extract_features_for_word(word: str, prev_word=None, prev_pred=None):
 
     if prev_pred:
         feats[f"prev_pred_{prev_pred}"] = 1
+        feats["prev_was_english"] = int(prev_pred == "ENG")
     else:
         feats["prev_pred_NONE"] = 1
+        feats["prev_was_english"] = 0
 
     return feats
