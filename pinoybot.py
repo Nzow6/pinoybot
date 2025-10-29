@@ -43,8 +43,17 @@ if __name__ == "__main__":
     "around", "3PM", 
     "tapos", "nagchika", "pa", "kami", 
     "about", "the", "project", 
-    "and", "graduation", "soon"
+    "and", "graduation", "soon", "like", "67"
     ]
 
-    print("Tokens:", example_tokens)
-    print("Predicted tags:", tag_language(example_tokens))
+    
+    predicted_tags = tag_language(example_tokens) 
+
+    print("TAG | TOKEN")
+    for i in range(len(example_tokens)):
+        token = example_tokens[i]
+        tag = predicted_tags[i]
+        print(f"{tag} | {token}")
+
+    # print("Tokens:", example_tokens)
+    # print("Predicted tags:", tag_language(example_tokens))
