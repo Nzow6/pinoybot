@@ -9,6 +9,7 @@ from feature_utils import extract_features_for_word
 import joblib
 
 
+
 df = pd.read_excel("MCO2 Dataset (full).xlsx")
 df.head(10)
 df = df.dropna(subset=['word']).copy()
@@ -72,18 +73,17 @@ X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, r
 
 # trying random forest classifier instead of decision tree
 rfc = RandomForestClassifier(
-    n_estimators=400,         
-    max_depth=18,              
+    n_estimators=500,         
+    max_depth=18,             
     min_samples_split=3,
-    min_samples_leaf=1,
-    max_features='sqrt',      
+    min_samples_leaf=2,
+    max_features='sqrt',       
     class_weight='balanced',   
-    criterion='gini',         
+    criterion='entropy',          
     n_jobs=-1,
     random_state=42
 )
 
-rfc.fit(X_train, y_train)
 
 
 rfc.fit(X_train, y_train)
@@ -114,4 +114,3 @@ print(confusion_matrix(y_test, y_test_pred))
 joblib.dump(rfc, "pinoybot_model.pkl")
 joblib.dump(vec, "pinoybot_vectorizer.pkl")
 print("\nModel and vectorizer saved successfully.")
-
