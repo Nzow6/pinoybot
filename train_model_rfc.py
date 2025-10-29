@@ -72,13 +72,13 @@ X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, r
 
 # trying random forest classifier instead of decision tree
 rfc = RandomForestClassifier(
-    n_estimators=400,          # More trees → better averaging
-    max_depth=18,              # Slightly deeper for richer patterns
+    n_estimators=400,         
+    max_depth=18,              
     min_samples_split=3,
     min_samples_leaf=1,
-    max_features='sqrt',       # Random subset of features per split
-    class_weight='balanced',   # Adjusts for ENG/FIL/OTH imbalance
-    criterion='gini',          # Use 'entropy' if you want more sensitivity
+    max_features='sqrt',      
+    class_weight='balanced',   
+    criterion='gini',         
     n_jobs=-1,
     random_state=42
 )
@@ -114,3 +114,4 @@ print(confusion_matrix(y_test, y_test_pred))
 joblib.dump(rfc, "pinoybot_model.pkl")
 joblib.dump(vec, "pinoybot_vectorizer.pkl")
 print("\nModel and vectorizer saved successfully.")
+
