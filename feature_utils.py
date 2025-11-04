@@ -46,19 +46,22 @@ def extract_features_for_word(word: str, prev_word=None, prev_pred=None):
         # --- BASIC LEXICAL ---
         "length": num_chars,
         "num_vowels": num_vowels,
-        "vowel_ratio": vowel_ratio,
-        "consonant_ratio": consonant_ratio,
+        "vowel_ratio": vowel_ratio, 
+        "consonant_ratio": consonant_ratio, 
         "is_capitalized": int(num_chars > 0 and word[0].isupper()),
         "is_all_caps": int(num_chars > 0 and word.isupper()),
         "has_digit": int(any(ch.isdigit() for ch in word)),
         "has_punct": int(any(ch in string.punctuation for ch in word)),
         "is_short_word": int(len(lower) <= 3),
         "is_long_word": int(len(lower) >= 8),
+        "is_first_word": prev_word == None and prev_pred == None
     }
 
     # --- LETTER PRESENCE ---
     for vowel in "aeiou":
         feats[f"num_{vowel}"] = lower.count(vowel)
+    for ch in "cfjqvx": #letters not found in original Filipino Alphabet
+        feats[f"has_{ch}"] = int(ch in lower)
 
     # --- FILIPINO MORPHOLOGY ---
     for pre in FILIPINO_PREFIXES:
@@ -69,6 +72,7 @@ def extract_features_for_word(word: str, prev_word=None, prev_pred=None):
     feats["has_mga"] = int("mga" in lower)
     feats["has_reduplication"] = int(bool(re.search(r"(.+)-\1", lower)))  # araw-araw
     feats["has_reduplication_flex"] = int(bool(re.search(r"([a-z]{2,})\1", lower)))  # haha, sige-sige
+    
 
     # --- ENGLISH MORPHOLOGY ---
     for suf in ENGLISH_SUFFIXES:
@@ -79,7 +83,8 @@ def extract_features_for_word(word: str, prev_word=None, prev_pred=None):
     feats["has_vowel_consonant_vowel"] = int(bool(re.search(r"[aeiou][bcdfghjklmnpqrstvwxyz][aeiou]", lower)))
     feats["contains_q_or_x"] = int("q" in lower or "x" in lower)
     feats["is_english_stopword"] = int(lower in ENGLISH_STOPWORDS)
-
+    
+    
     # --- SHORT-WORD DISAMBIGUATION ---
     feats["is_common_eng_short"] = int(lower in COMMON_EN_SHORTS)
     feats["is_common_fil_short"] = int(lower in COMMON_FIL_SHORTS)
@@ -87,6 +92,7 @@ def extract_features_for_word(word: str, prev_word=None, prev_pred=None):
     # --- SEMANTIC HINTS ---
     feats["is_known_eng"] = int(lower in COMMON_ENG_WORDS)
     feats["is_known_fil"] = int(lower in COMMON_FIL_WORDS)
+    
 
     # --- STRUCTURAL / SYMBOLIC ---
     feats["is_acronym"] = int(word.isupper() and len(word) <= 5 and word.isalpha())
@@ -101,9 +107,9 @@ def extract_features_for_word(word: str, prev_word=None, prev_pred=None):
 
     # --- CHARACTER-LEVEL N-GRAMS ---
     for i in range(len(lower) - 1):
-        feats[f"bi_{lower[i:i+2]}"] = 1
+        feats[f"bi_{lower[i:i+2]}"] = 1 #keep
     for i in range(len(lower) - 2):
-        feats[f"tri_{lower[i:i+3]}"] = 1 
+        feats[f"tri_{lower[i:i+3]}"] = 1 #keep
 
     # --- CONTEXT FEATURES ---
     if prev_word:
