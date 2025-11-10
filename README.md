@@ -53,7 +53,7 @@ We also tried Decision Trees and Random Forests, but Logistic Regression perform
 | **Random Forest**       | Combines many trees to reduce overfitting                       | Still struggles when features overlap or depend on each other                      |
 | **Logistic Regression** | Uses all features together and finds weighted probabilities     | Handles overlapping or dependent features smoothly                                 |
 
-Filipino-English code-switching isn’t rule-based. Some Filipino words look English, and some English words borrow Filipino spelling. Because Decision Trees make hard boundaries, they tend to create strict “if-then” rules. For example, if the tree learns that words ending with “er” are English, it might automatically classify anything ending with “er” (like “taga-gather” or “comforter”) as English, even when it’s being used as part of a Filipino sentence or being code-switched. Once the tree makes that decision, it doesn’t consider other clues (like the presence of “taga” or “na”) — it just follows that single rule all the way down.
+Filipino-English code-switching isn’t rule-based. Some Filipino words look English, and some English words borrow Filipino spelling. Because Decision Trees make hard boundaries, they tend to create strict “if-then” rules. For example, if the tree learns that words ending with “er” are English, it might automatically classify anything ending with “er” (like “taga-gather”) as English, even when it’s being used as part of a Filipino sentence or being code-switched. Once the tree makes that decision, it doesn’t consider other clues (like the presence of “taga” or “na”) — it just follows that single rule all the way down.
 
 Logistic Regression, on the other hand, doesn’t commit to one hard rule. It considers all features together and assigns a probability to each class. So in the same example, it might recognize that “ends with er” suggests English, but “starts with taga” suggests Filipino — and then combine those signals instead of picking one over the other. This “soft” decision-making allows it to handle code-switched words better, where boundaries between Filipino and English aren’t always clear.
 
@@ -99,6 +99,7 @@ That’s why a model that can handle relationships between features — like Log
 * Decision Trees and Random Forests rely on **hard yes/no rules** (if statements), which overfit easily.
 * Naive Bayes assumes **clues don’t interact**, which doesn’t match real language patterns.
 * Our features (prefixes, suffixes, capitalization, etc.) are **dependent**, so Logistic Regression makes more sense.
+
 
 
 
