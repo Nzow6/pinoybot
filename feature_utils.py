@@ -12,18 +12,20 @@ import re
 # TODO: Fix capitalization checking for NE/OTHER detection, recall is too high so non eng words are classigfied as ENG, ALL CAPS OR JEJEMON WORDS are hard to classify
 
 VOWELS = set("aeiouAEIOU")
+VOWELS_LOWER = set("aeiou")
 
 # English / Filipino pattern sets
 ENGLISH_SUFFIXES = ("ing", "ed", "tion", "sion", "ly", "ment", "ness", "able", "ous", "ive", "less", "ful")
 ENGLISH_CLUSTERS = ("th", "sh", "ch", "ph", "wh")
 FILIPINO_PREFIXES = ("mag", "nag", "ni", "ka", "pa", "pag", "ma", "man", "na", "pin")
 FILIPINO_SUFFIXES = ("an", "han", "hin", "in", "on", "ko", "ta", "ka", "mo")
+FILIPINO_INFIXES = ("um", "in")
 
 COMMON_EN_SHORTS = {"i", "a", "an", "am", "is", "in", "it", "of", "on", "at", "to", "we", "he", "be", "do", "go", "no", "so", "up", "us", "the", "and"}
 COMMON_FIL_SHORTS = {"si", "sa", "na", "pa", "po", "ko", "mo", "ka", "ba", "ha", "eh", "ay", "di"}
 
 COMMON_ENG_WORDS = {"happy", "sad", "love", "study", "project", "graduation", "after", "before", "and", "today", "soon"}
-COMMON_FIL_WORDS = {"grabe", "sige", "kasi", "naman", "ba", "po", "tapos", "ayan", "ako", "kami", "kayo", "pa", "na"}
+COMMON_FIL_WORDS = {"grabe", "sige", "kasi", "naman", "ba", "po", "opo", "tapos", "ayan", "ako", "kami", "kayo", "pa", "na"}
 
 ENGLISH_STOPWORDS = {
     "the", "and", "to", "in", "for", "of", "on", "with", "from", "that", "is", "was", "it", "as", "this", "by", "at", "or", "be", "an", "are", "if"
@@ -68,10 +70,18 @@ def extract_features_for_word(word: str, prev_word=None, prev_pred=None):
         feats[f"starts_{pre}"] = int(lower.startswith(pre))
     for suf in FILIPINO_SUFFIXES:
         feats[f"ends_{suf}"] = int(lower.endswith(suf))
+    for infix in FILIPINO_INFIXES:
+        feats[f"has_infix_{infix}"] = int(infix in lower[1:-1])
     feats["has_ng"] = int("ng" in lower)
     feats["has_mga"] = int("mga" in lower)
     feats["has_reduplication"] = int(bool(re.search(r"(.+)-\1", lower)))  # araw-araw
     feats["has_reduplication_flex"] = int(bool(re.search(r"([a-z]{2,})\1", lower)))  # haha, sige-sige
+    #partial reduplication (e.g. kakainin, sisibol)
+    if len(lower) >= 4:  # at least 4 letters to have a repeat
+        first2 = lower[:2]
+        feats["has_repeated_first2"] = int(first2 in lower[2:])
+    else:
+        feats["has_repeated_first2"] = 0
     
 
     # --- ENGLISH MORPHOLOGY ---
@@ -83,6 +93,12 @@ def extract_features_for_word(word: str, prev_word=None, prev_pred=None):
     feats["has_vowel_consonant_vowel"] = int(bool(re.search(r"[aeiou][bcdfghjklmnpqrstvwxyz][aeiou]", lower)))
     feats["contains_q_or_x"] = int("q" in lower or "x" in lower)
     feats["is_english_stopword"] = int(lower in ENGLISH_STOPWORDS)
+    feats["has_complex_consonant_cluster"] = int(bool(re.search(r"[bcdfghjklmnpqrstvwxyz]{3,}", lower)))
+    #diphthongs
+    for v1 in VOWELS_LOWER:
+        for v2 in VOWELS_LOWER:
+            pair = v1 + v2
+            feats[f"has_pair_{pair}"] = int(pair in lower)
     
     
     # --- SHORT-WORD DISAMBIGUATION ---
@@ -107,9 +123,9 @@ def extract_features_for_word(word: str, prev_word=None, prev_pred=None):
 
     # --- CHARACTER-LEVEL N-GRAMS ---
     for i in range(len(lower) - 1):
-        feats[f"bi_{lower[i:i+2]}"] = 1 #keep
+        feats[f"bi_{lower[i:i+2]}"] = 1 
     for i in range(len(lower) - 2):
-        feats[f"tri_{lower[i:i+3]}"] = 1 #keep
+        feats[f"tri_{lower[i:i+3]}"] = 1
 
     # --- CONTEXT FEATURES ---
     if prev_word:

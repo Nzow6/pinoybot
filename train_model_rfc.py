@@ -10,7 +10,7 @@ import joblib
 
 
 
-df = pd.read_excel("MCO2 Dataset (full).xlsx")
+df = pd.read_excel("grp_data.xlsx")
 df.head(10)
 df = df.dropna(subset=['word']).copy()
 
