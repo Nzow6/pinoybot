@@ -28,7 +28,7 @@ vec = joblib.load(VEC_PATH)
 
 def decade_to_word(decade):
     decade = decade.lower()
-    if decade[-1] == 's' and decade[-2].isdigit() or decade[-2] == 's' and decade[-1] == 's' and decade[-3].isdigit():
+    if decade[-1] == 's' and decade[-2].isdigit() or decade[-2] == "'" and decade[-1] == 's' and decade[-3].isdigit():
         decade_str = decade.lower()
         decade_str = decade.replace("'", "")  # remove apostrophe
         decade_str = decade_str.replace('s', '')
@@ -46,7 +46,7 @@ def decade_to_word(decade):
             80: 'eighties', 90: 'nineties'
         }
         
-        return number_words.get(decade_num)
+        return number_words.get(decade_num, decade)
     else:
         return decade
 
@@ -63,8 +63,8 @@ if __name__ == "__main__":
     "sige", "Grabe", "ang",
     "sobrang", "happy", "ako", 
     "after", "class", 
-    "kasi", "we", "ate", "together", "sa", "80s", "canteen",
-    "around", "3PM", "car's", 
+    "kasi", "we", "ate", "together", "sa", "80's", "canteen",
+    "around", "3PM", "car's",  
     "tapos", "nagchika", "pa", "kami", "at", "mag-shopping",
     "about", "the", "project", 
     "and", "graduation", "soon", "like", "67"
