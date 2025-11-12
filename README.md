@@ -37,7 +37,7 @@ By the end, the model has learned how strongly each feature affects each label �
 
 CODE PART FOR REFERENCE IN NEXT PARAGRAPH: `log_reg = LogisticRegression(max_iter=1000, class_weight='balanced', random_state=42)`
 
-But here’s the main reason why it jsut fits better with our mco and features: it doesn’t just learn blindly. Our model uses an **L2 penalty** (default in scikit-learn, that's why I didn't specify it), which is like a balancing tool that keeps the model from over-relying on any single feature. It doesn’t only shrink useless features — it also tones down the ones that get *too strong*. For instance, if “starts_mag” gets a massive weight because it often shows up in Filipino words, L2 will smooth it out a bit so the model doesn’t make everything with “mag” automatically Filipino. Instead, it spreads attention across other features like “ends_ing” or “contains_th” that also matter.
+But here’s the main reason why it just fits better with our mco and features: it doesn’t just learn blindly. Our model uses an **L2 penalty** (default in scikit-learn, that's why I didn't specify it), which is like a balancing tool that keeps the model from over-relying on any single feature. It doesn’t only shrink useless features — it also tones down the ones that get *too strong*. For instance, if “starts_mag” gets a massive weight because it often shows up in Filipino words, L2 will smooth it out a bit so the model doesn’t make everything with “mag” automatically Filipino. Instead, it spreads attention across other features like “ends_ing” or “contains_th” that also matter.
 
 This keeps the model well-balanced and stable — it focuses on patterns that consistently matter, while ignoring random noise or overly dominant features. In short, L2 makes sure the model learns **smart confidence**, not **blind certainty**.
 
@@ -99,6 +99,7 @@ That’s why a model that can handle relationships between features — like Log
 * Decision Trees and Random Forests rely on **hard yes/no rules** (if statements), which overfit easily.
 * Naive Bayes assumes **clues don’t interact**, which doesn’t match real language patterns.
 * Our features (prefixes, suffixes, capitalization, etc.) are **dependent**, so Logistic Regression makes more sense.
+
 
 
 
