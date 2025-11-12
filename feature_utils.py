@@ -126,6 +126,9 @@ def extract_features_for_word(word: str, prev_word=None, prev_pred=None):
         feats[f"bi_{lower[i:i+2]}"] = 1 
     for i in range(len(lower) - 2):
         feats[f"tri_{lower[i:i+3]}"] = 1
+    for i in range(len(lower) - 3):
+        feats[f"quad_{lower[i:i+4]}"] = 1
+    
 
     # --- CONTEXT FEATURES ---
     if prev_word:
