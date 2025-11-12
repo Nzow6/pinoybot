@@ -1,0 +1,13 @@
+#Temp feature 
+
+        "has_prefix_before_punct" : int(any(word in FILIPINO_PREFIXES)),
+
+# --- word has a dash symbol ---
+    prefix_of_word_arr = []
+    for letters in word: 
+        if letters == "-":
+            break
+        prefix_of_word_arr.append(letters)
+        
+    prefix_of_word = "".join(prefix_of_word_arr)
+    feats["has_prefix_before_punct"] = int(prefix_of_word in FILIPINO_PREFIXES)
