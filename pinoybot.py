@@ -26,27 +26,50 @@ VEC_PATH = "pinoybot_vectorizer.pkl"
 clf = joblib.load(MODEL_PATH)
 vec = joblib.load(VEC_PATH)
 
+def decade_to_word(decade):
+    decade = decade.lower()
+    if decade[-1] == 's' and decade[-2].isdigit() or decade[-2] == 's' and decade[-1] == 's' and decade[-3].isdigit():
+        decade_str = decade.lower()
+        decade_str = decade.replace("'", "")  # remove apostrophe
+        decade_str = decade_str.replace('s', '')
+
+        if not decade_str or not decade_str.isdigit():
+            return decade
+
+        year_int = int(decade_str)
+        decade_num = year_int % 100
+        
+        # Map numbers to their word equivalents
+        number_words = {
+            0: 'hundreds', 10: 'tens', 20: 'twenties', 30: 'thirties',
+            40: 'forties', 50: 'fifties', 60: 'sixties', 70: 'seventies',
+            80: 'eighties', 90: 'nineties'
+        }
+        
+        return number_words.get(decade_num)
+    else:
+        return decade
+
 def tag_language(tokens: List[str]) -> List[str]:
     """Tag each token as FIL, ENG, or OTH."""
-    features = [extract_features_for_word(word) for word in tokens]
+    token_copy = [decade_to_word(word) for word in tokens]
+    features = [extract_features_for_word(word) for word in token_copy]
     X_new = vec.transform(features)
     predicted = clf.predict(X_new)
     return [str(tag) for tag in predicted]
 
 if __name__ == "__main__":
     example_tokens = [
-    "Grabe", "ang", "vibes", "today", 
+    "sige", "Grabe", "ang",
     "sobrang", "happy", "ako", 
     "after", "class", 
-    "kasi", "we", "ate", "together", 
-    "sa", "canteen", 
-    "around", "3PM", 
-    "tapos", "nagchika", "pa", "kami", 
+    "kasi", "we", "ate", "together", "sa", "80s", "canteen",
+    "around", "3PM", "car's", 
+    "tapos", "nagchika", "pa", "kami", "at", "mag-shopping",
     "about", "the", "project", 
     "and", "graduation", "soon", "like", "67"
     ]
 
-    
     predicted_tags = tag_language(example_tokens) 
 
     print("TAG | TOKEN")
