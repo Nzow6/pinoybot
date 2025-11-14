@@ -10,7 +10,7 @@ import sys
 sys.stdout.reconfigure(encoding='utf-8')
 
 
-DEV_MODE = False  # Set to True if you want only CV
+DEV_MODE = False  # set true for cv
 DATASET_PATH = "MCO2 Dataset (full).xlsx"
 
 
@@ -34,20 +34,19 @@ def normalize_is_correct(x):
         return False
     return pd.NA
 
-# Normalize
 df["is_correct_norm"] = df["is_correct"].apply(normalize_is_correct)
 
-# Priority ranking: True (0) → False (1) → NaN (2)
+# Priority ranking: True (0), False (1), if NaN (2)
 priority_map = {True: 0, False: 1}
 df["priority"] = df["is_correct_norm"].map(priority_map).fillna(2).astype(int)
 
-# Sort so the “best” row per token appears first
+# Sort so the annotated rows per token appear first, since I just added rows to the raw dataset
 df = df.sort_values(
     by=["sentence_id", "word_id", "priority"],
     ascending=[True, True, True]
 )
 
-
+# Will drop duplicates, but sorted already by priority
 df = df.drop_duplicates(
     subset=["sentence_id", "word_id"],
     keep="first"
@@ -82,7 +81,7 @@ for i, row in df.iterrows():
     prev_word = row['word']
     prev_pred = row['mapped_label']
 
-# Vectorize features
+
 vec = DictVectorizer(sparse=True)
 X = vec.fit_transform(feature_dicts)
 y = df['mapped_label'].values
@@ -95,7 +94,7 @@ log_reg = LogisticRegression(
 )
 
 # ------------------------
-# DEV MODE (cross validation checkerk)
+# DEV MODE (cross validation checker)
 # ------------------------
 if DEV_MODE:
     print("\n=== DEVELOPMENT MODE: Running 5-Fold Cross Validation ===")
@@ -156,3 +155,4 @@ for class_idx, class_name in enumerate(classes):
 joblib.dump(log_reg, "pinoybot_model.pkl")
 joblib.dump(vec, "pinoybot_vectorizer.pkl")
 print("Model and vectorizer saved successfully!")
+
