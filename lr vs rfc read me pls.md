@@ -1,4 +1,4 @@
-# why we ended up using random forest instead of logistic regression
+# why we should end up using random forest instead of logistic regression
 
 when we first tried using logistic regression (lr) for pinoybot, it worked fine for simple text, specifically ones that we're really straight forward. but once we started dealing with real code-switching and added more complex features, lr just couldn’t handle it anymore. 
 
@@ -69,3 +69,4 @@ lr just adds weights. rfc learns rules.
 code-switching needs rules, not linear math.  
 so yeah, random forest wins for this kinds of word.
 try to use ur own sentences para we know if we want to switch
+
