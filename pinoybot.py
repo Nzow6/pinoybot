@@ -68,9 +68,24 @@ def decade_to_word(decade):
         return decade
 
 def tag_language(tokens: List[str]) -> List[str]:
-    """Tag each token as FIL, ENG, or OTH."""
     token_copy = [decade_to_word(word) for word in tokens]
-    features = [extract_features_for_word(word) for word in token_copy]
+
+    features = []
+    prev_word = None
+    prev_pred = None
+
+    for word in token_copy:
+        feats = extract_features_for_word(word, prev_word, prev_pred)
+        features.append(feats)
+
+        # temporary prediction for context
+        X_tmp = vec.transform([feats])
+        step_pred = clf.predict(X_tmp)[0]
+
+        prev_word = word
+        prev_pred = step_pred
+
+    # final predictions
     X_new = vec.transform(features)
     predicted = clf.predict(X_new)
     return [str(tag) for tag in predicted]
@@ -97,3 +112,4 @@ if __name__ == "__main__":
 
     # print("Tokens:", example_tokens)
     # print("Predicted tags:", tag_language(example_tokens))
+
