@@ -24,8 +24,12 @@ PinoyBot: Filipino Code-Switched Language Identifier
 Loads the trained Decision Tree model and vectorizer to tag new tokens.
 """
 
-# Load model + vectorizer
-MODEL_PATH = "pinoybot_model.pkl"
+# choose:
+#   "lr"
+#   "random_forest"
+MODEL_CHOICE = "random_forest"
+
+MODEL_PATH = f"pinoybot_model_{MODEL_CHOICE}.pkl"
 VEC_PATH = "pinoybot_vectorizer.pkl"
 
 # alternative for file loading using absolute paths 
@@ -112,4 +116,5 @@ if __name__ == "__main__":
 
     # print("Tokens:", example_tokens)
     # print("Predicted tags:", tag_language(example_tokens))
+
 
