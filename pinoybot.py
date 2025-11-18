@@ -105,7 +105,6 @@ if __name__ == "__main__":
     example_tokens=tokens
 
 
-
     predicted_tags = tag_language(example_tokens) 
 
     print("TAG | TOKEN")
