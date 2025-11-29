@@ -95,23 +95,56 @@ def tag_language(tokens: List[str]) -> List[str]:
     return [str(tag) for tag in predicted]
 
 if __name__ == "__main__":
+
+    # y axis (rows) - actual
+    # x axis (cols) - predicted
+    confusion_matrix = [[0,0,0],[0,0,0],[0,0,0]]
     
-    sentence = "I heard you started dating her ah! Kamusta naman yung dating niya sayo? "
+    dictionary = {
+        "ENG": 0,
+        "FIL": 1,
+        "OTH": 2
+    }
 
-    punctuation_to_separate = r'([.,;:\"?!()])'
-    tokens = re.split(r'\s+|' + punctuation_to_separate, sentence)
-    tokens = [token for token in tokens if token and token.strip()]
+    with open("test_data.txt","r") as file:
+        sentences = file.readlines()
+    with open("test_labels.txt","r") as file:
+        answers = file.readlines()
 
-    example_tokens=tokens
 
+    size = len(sentences)
+    for i in range (0,size):
+        sentence = sentences[i]
+        
+        #punctuation_to_separate = r"([.,;:\"?!()])"
+        #tokens = re.split(r'\s+|' + punctuation_to_separate, sentence)
 
-    predicted_tags = tag_language(example_tokens) 
+        #modified tokenizer for test data 
+        answer = answers[i]
+        answer = answer.split("|")
+        answer = [token.strip() for token in answer if token and token.strip()]
 
-    print("TAG | TOKEN")
-    for i in range(len(example_tokens)):
-        token = example_tokens[i]
-        tag = predicted_tags[i]
-        print(f"{tag} | {token}")
+        tokens = sentence.split("|")
+        tokens = [token.strip() for token in tokens if token and token.strip()]
+
+        example_tokens=tokens
+
+        predicted_tags = tag_language(example_tokens) 
+
+        print("TAG | TOKEN")
+        for i in range(len(example_tokens)):
+            token = example_tokens[i]
+            tag = predicted_tags[i]
+            ans = answer[i]
+            # prediction | answer | word | matched
+            print(f"{tag} | {ans} | {token} | {tag==ans}")
+            confusion_matrix[dictionary[ans]][dictionary[tag]] +=1
+
+    
+
+    for row in confusion_matrix:
+        print(row)
+
 
     # print("Tokens:", example_tokens)
     # print("Predicted tags:", tag_language(example_tokens))
