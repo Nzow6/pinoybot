@@ -95,58 +95,34 @@ def tag_language(tokens: List[str]) -> List[str]:
     return [str(tag) for tag in predicted]
 
 if __name__ == "__main__":
-
-    # y axis (rows) - actual
-    # x axis (cols) - predicted
-    confusion_matrix = [[0,0,0],[0,0,0],[0,0,0]]
+    print("=== PinoyBot Filipino-English Language Identifier ===")
+    print("Enter a Taglish sentence to test (or type 'exit'/'quit' to stop):")
     
-    dictionary = {
-        "ENG": 0,
-        "FIL": 1,
-        "OTH": 2
-    }
+    while True:
+        try:
+            user_input = input("\nInput: ").strip()
+            if not user_input:
+                continue
+            if user_input.lower() in ("exit", "quit"):
+                print("Exiting PinoyBot.")
+                break
+            
+            # Use pipe separation if user provided pipe-separated tokens; otherwise tokenize on words/punctuation
+            if "|" in user_input:
+                tokens = [t.strip() for t in user_input.split("|") if t and t.strip()]
+            else:
+                tokens = [t for t in re.split(r'(\s+|[.,;:!?"()]+)', user_input) if t and not t.isspace()]
 
-    with open("test_data.txt","r") as file:
-        sentences = file.readlines()
-    with open("test_labels.txt","r") as file:
-        answers = file.readlines()
+            predicted_tags = tag_language(tokens)
 
+            print("\nTAG | TOKEN")
+            print("-" * 15)
+            for tag, token in zip(predicted_tags, tokens):
+                print(f"{tag:<3} | {token}")
 
-    size = len(sentences)
-    for i in range (0,size):
-        sentence = sentences[i]
-        
-        #punctuation_to_separate = r"([.,;:\"?!()])"
-        #tokens = re.split(r'\s+|' + punctuation_to_separate, sentence)
+        except (KeyboardInterrupt, EOFError):
+            print("\nExiting PinoyBot.")
+            break
 
-        #modified tokenizer for test data 
-        answer = answers[i]
-        answer = answer.split("|")
-        answer = [token.strip() for token in answer if token and token.strip()]
-
-        tokens = sentence.split("|")
-        tokens = [token.strip() for token in tokens if token and token.strip()]
-
-        example_tokens=tokens
-
-        predicted_tags = tag_language(example_tokens) 
-
-        print("TAG | TOKEN")
-        for i in range(len(example_tokens)):
-            token = example_tokens[i]
-            tag = predicted_tags[i]
-            ans = answer[i]
-            # prediction | answer | word | matched
-            print(f"{tag} | {ans} | {token} | {tag==ans}")
-            confusion_matrix[dictionary[ans]][dictionary[tag]] +=1
-
-    
-
-    for row in confusion_matrix:
-        print(row)
-
-
-    # print("Tokens:", example_tokens)
-    # print("Predicted tags:", tag_language(example_tokens))
 
 
